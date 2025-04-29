@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <title>Teachable Machine Demo</title>
+        <title>Image Recognition Demo</title>
 
         <!-- Google Font -->
         <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet" />
@@ -19,10 +19,12 @@
                 margin: 0;
                 padding: 0;
             }
+
             .navbar-brand {
                 font-weight: 600;
                 font-size: 1.5rem;
             }
+
             .hero {
                 background: linear-gradient(135deg, #6f42c1, #6610f2);
                 color: #fff;
@@ -32,44 +34,52 @@
                 margin-bottom: 2rem;
                 box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             }
+
             .hero h2 {
                 font-weight: 600;
                 font-size: 2.5rem;
                 margin-bottom: 1rem;
             }
+
             .btn-custom {
                 min-width: 150px;
             }
+
             .card-custom {
                 border: none;
                 border-radius: 1rem;
                 box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
             }
+
             #webcam-container canvas {
                 border-radius: 0.5rem;
             }
+
             #label-container {
                 max-height: 360px;
                 overflow-y: auto;
             }
+
             #label-container .progress {
                 height: 18px;
             }
+
             #result-table-container .table {
                 margin-bottom: 0;
             }
-            /* Center-align table content */
+
             .table.text-center th,
             .table.text-center td {
                 text-align: center;
             }
         </style>
     </head>
+
     <body>
         <!-- Navbar -->
         <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
             <div class="container">
-                <a class="navbar-brand" href="#">Teachable Machine</a>
+                <a class="navbar-brand" href="#">Image Recognition</a>
             </div>
         </nav>
 
@@ -78,13 +88,14 @@
             <h2>Ứng Dụng Học Sâu Trực Quan</h2>
             <p class="lead">Nhận diện các đồ dùng học tập & sinh hoạt hằng ngày qua camera</p>
         </div>
-        
+
         <!-- Main Container -->
         <div class="container">
             <!-- Controls -->
-            <div class="d-flex justify-content-center gap-3 mb-4">
+            <div class="d-flex justify-content-center gap-3 mb-4 flex-wrap">
                 <button class="btn btn-primary btn-lg btn-custom" onclick="init()"><i class="bi bi-camera-video-fill"></i> Mở Máy Ảnh</button>
                 <button class="btn btn-success btn-lg btn-custom" onclick="showResultTable()"><i class="bi bi-table"></i> Hiển Thị Kết Quả</button>
+                <button class="btn btn-secondary btn-lg btn-custom" onclick="downloadCSV()"><i class="bi bi-download"></i> Tải Lịch Sử</button>
             </div>
 
             <!-- Live Preview & Labels -->
@@ -118,9 +129,8 @@
             </div>
         </div>
 
-        <!-- Bootstrap JS Bundle -->
+        <!-- Scripts -->
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-        <!-- Tensorflow & Teachable Machine -->
         <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
 
@@ -128,6 +138,7 @@
             const URL = "https://teachablemachine.withgoogle.com/models/mC1Wq5kvK/";
             let model, webcam, labelContainer, maxPredictions;
             let predictionDict = {};
+            let predictionHistory = []; // Lưu lịch sử dự đoán
 
             async function init() {
                 predictionDict = {};
@@ -164,6 +175,10 @@
                         predictionDict[className] = prob;
                     }
 
+                    if (prob > 0.5 && className !== "Không Có Vật Dụng") {
+                        predictionHistory.push({ label: className, prob: prob });
+                    }
+
                     const wrapper = document.createElement("div");
                     wrapper.classList.add("mb-2");
                     wrapper.innerHTML = `
@@ -178,45 +193,69 @@
                     labelContainer.appendChild(wrapper);
                 });
             }
+
             function showResultTable() {
                 const container = document.getElementById("result-table-container");
                 const entries = Object.entries(predictionDict)
-                    .filter(([label, p]) => p > 0.5 && label !== "Không Có Vật Dụng") // <-- Bỏ qua "Không Có Vật Dụng"
+                    .filter(([label, p]) => p > 0.5 && label !== "Không Có Vật Dụng")
                     .sort((a, b) => b[1] - a[1]);
 
                 const tbody = entries
                     .map(
                         ([label, prob], idx) => `
-                    <tr>
-                        <td>${idx + 1}</td>
-                        <td>${label}</td>
-                        <td>${(prob * 100).toFixed(2)}%</td>
-                    </tr>
-                `
+                <tr>
+                    <td>${idx + 1}</td>
+                    <td>${label}</td>
+                    <td>${(prob * 100).toFixed(2)}%</td>
+                </tr>
+            `
                     )
                     .join("");
 
                 const html = tbody
                     ? `
-                <table class="table table-striped align-middle text-center">
-                    <thead class="table-secondary">
-                        <tr>
-                            <th>STT</th>
-                            <th>Nhãn</th>
-                            <th>Xác Suất</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${tbody}
-                    </tbody>
-                </table>
-            `
+            <table class="table table-striped align-middle text-center">
+                <thead class="table-secondary">
+                    <tr>
+                        <th>STT</th>
+                        <th>Nhãn</th>
+                        <th>Xác Suất</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${tbody}
+                </tbody>
+            </table>
+        `
                     : `<div class="alert alert-warning text-center mb-0">Không có kết quả có độ tin cậy cao!</div>`;
 
                 container.querySelector(".card-body").innerHTML = `
-                    <h5 class="card-title mb-4 text-center">Kết Quả Có Độ Tin Cậy Cao</h5>
-                    ${html}
-                `;
+                <h5 class="card-title mb-4 text-center">Kết Quả Có Độ Tin Cậy Cao</h5>
+                ${html}
+            `;
+            }
+
+            function downloadCSV() {
+                const csvRows = ["Nhãn,Xác Suất (%)"];
+
+                if (predictionHistory.length > 0) {
+                    predictionHistory.forEach((item) => {
+                        csvRows.push(`${item.label},${(item.prob * 100).toFixed(2)}`);
+                    });
+                } else {
+                    csvRows.push("Chưa có dữ liệu,0");
+                }
+
+                const csvContent = csvRows.join("\n");
+                const encodedUri = "data:text/csv;charset=utf-8," + encodeURIComponent(csvContent);
+
+                const link = document.createElement("a");
+                link.setAttribute("href", encodedUri);
+                link.setAttribute("download", "lich_su_nhan_dien.csv");
+                link.style.display = "none";
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
             }
         </script>
     </body>
