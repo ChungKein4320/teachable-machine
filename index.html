@@ -75,16 +75,16 @@
 
         <!-- Hero Section -->
         <div class="hero">
-            <h2>Real-time Image Classification</h2>
-            <p class="lead">Powered by your webcam and Teachable Machine</p>
+            <h2>Ứng Dụng Học Sâu Trực Quan</h2>
+            <p class="lead">Nhận diện các đồ dùng học tập & sinh hoạt hằng ngày qua camera</p>
         </div>
-
+        
         <!-- Main Container -->
         <div class="container">
             <!-- Controls -->
             <div class="d-flex justify-content-center gap-3 mb-4">
-                <button class="btn btn-primary btn-lg btn-custom" onclick="init()"><i class="bi bi-camera-video-fill"></i> Start Camera</button>
-                <button class="btn btn-success btn-lg btn-custom" onclick="showResultTable()"><i class="bi bi-table"></i> Show Results</button>
+                <button class="btn btn-primary btn-lg btn-custom" onclick="init()"><i class="bi bi-camera-video-fill"></i> Mở Máy Ảnh</button>
+                <button class="btn btn-success btn-lg btn-custom" onclick="showResultTable()"><i class="bi bi-table"></i> Hiển Thị Kết Quả</button>
             </div>
 
             <!-- Live Preview & Labels -->
@@ -92,7 +92,7 @@
                 <div class="col-md-6">
                     <div class="card card-custom">
                         <div class="card-body text-center">
-                            <h5 class="card-title mb-3">Webcam View</h5>
+                            <h5 class="card-title mb-3">Chế Độ Xem Webcam</h5>
                             <div id="webcam-container"></div>
                         </div>
                     </div>
@@ -100,7 +100,7 @@
                 <div class="col-md-6">
                     <div class="card card-custom">
                         <div class="card-body">
-                            <h5 class="card-title mb-3">Predictions</h5>
+                            <h5 class="card-title mb-3">Dự Đoán</h5>
                             <div id="label-container"></div>
                         </div>
                     </div>
@@ -108,10 +108,10 @@
             </div>
 
             <!-- Result Table -->
-            <div id="result-table-container" class="mt-5">
+            <div id="result-table-container" class="mt-4 mb-4">
                 <div class="card card-custom">
                     <div class="card-body">
-                        <h5 class="card-title mb-4 text-center">High Confidence Results</h5>
+                        <h5 class="card-title mb-4 text-center">Kết quả có độ tin cậy cao</h5>
                         <!-- Table inserted here -->
                     </div>
                 </div>
@@ -201,9 +201,9 @@
                 <table class="table table-striped align-middle text-center">
                     <thead class="table-secondary">
                         <tr>
-                            <th>Ordinal Number</th>
-                            <th>Label</th>
-                            <th>Probability</th>
+                            <th>STT</th>
+                            <th>Nhãn</th>
+                            <th>Xác Suất</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -211,10 +211,10 @@
                     </tbody>
                 </table>
             `
-                    : `<div class="alert alert-warning text-center mb-0">No high-confidence results!</div>`;
+                    : `<div class="alert alert-warning text-center mb-0">Không có kết quả có độ tin cậy cao!</div>`;
 
                 container.querySelector(".card-body").innerHTML = `
-                    <h5 class="card-title mb-4 text-center">High Confidence Results</h5>
+                    <h5 class="card-title mb-4 text-center">Kết Quả Có Độ Tin Cậy Cao</h5>
                     ${html}
                 `;
             }
